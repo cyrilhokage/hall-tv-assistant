@@ -5,8 +5,8 @@ import traceback
 import logging
 import os
 
-from movieApi import searchProgram, getProgramData
-from notionApi import userChoiceHandler
+from app.movieApi import searchProgram, getProgramData
+from app.notionApi import userChoiceHandler
 
 app = Flask(__name__)
 logging.basicConfig(level=logging.DEBUG)

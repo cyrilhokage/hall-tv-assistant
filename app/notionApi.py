@@ -3,10 +3,17 @@ import json
 import traceback
 import logging
 import os
-from movieApi import getProgramData
+from app.movieApi import getProgramData
 
-database_id = "42b4713090e341b8b0dd8c5827eed23b"
-hall_tv_token = "secret_FtcSWAqOIjt7PdoSJSO9UUg8biEvkBjsFqVaIc9zGYd"
+
+try : 
+    database_id = os.environ["DATABASE_ID"]
+    hall_tv_token = os.environ["HALL_TV_TOKEN"]
+
+except KeyError:
+    logging.error("Can't find all env variables")
+    exit  
+
 
 IMG_BASE_URL = "https://image.tmdb.org/t/p/w500"
 

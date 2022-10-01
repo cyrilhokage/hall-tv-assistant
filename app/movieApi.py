@@ -5,7 +5,14 @@ import logging
 import os
 
 
-MOVIES_API_KEY = "69cce8dbf435199baf4ab9dfcb63616d"
+# This is page access token that you get from facebook developer console.
+try : 
+    MOVIES_API_KEY = os.environ["MOVIES_API_KEY"]
+
+except KeyError:
+    logging.error("Can't find all env variables")
+    exit  
+
 
 def searchProgram(programType, query): 
     params = dict(api_key=MOVIES_API_KEY, language="fr-FR", query=query)
