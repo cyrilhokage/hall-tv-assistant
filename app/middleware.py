@@ -25,7 +25,7 @@ def handleTextMessages(messageText, senderId, MESGENGER_API, sendTextMessage):
 
 def handleTvMoviesRequests(senderId, programType, query, MESGENGER_API):
     requestBody = buildSearchBody(
-        senderId, programType, searchProgram(programType, query)
+        senderId, searchProgram(programType, query), programType
     )
     response = requests.post(MESGENGER_API, json=requestBody).json()
     logging.info(response.status_code)
