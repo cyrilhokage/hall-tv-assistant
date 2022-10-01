@@ -2,10 +2,9 @@ import re
 import logging
 import requests
 from app.movieApi import searchProgram, getProgramData
-from app.main import sendTextMessage
 
 
-def handleTextMessages(messageText, senderId, MESGENGER_API):
+def handleTextMessages(messageText, senderId, MESGENGER_API, sendTextMessage):
     pattern = re.compile(r"[a-zA-Z]+ - ", re.IGNORECASE)
 
     if pattern.match(messageText):

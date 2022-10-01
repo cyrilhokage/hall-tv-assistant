@@ -101,7 +101,7 @@ def receivedMessage(event):
 
     # could receive text or attachment but not both
     if "text" in event["message"]:
-        return handleTextMessages(event["message"]["text"], senderId, MESGENGER_API)
+        return handleTextMessages(event["message"]["text"], senderId, MESGENGER_API, sendTextMessage)
 
     elif "attachments" in event["message"]:
         message_attachments = event["message"]["attachments"]
