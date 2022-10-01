@@ -19,6 +19,7 @@ try :
     MOVIES_API_KEY = os.environ["MOVIES_API_KEY"]
     DATABASE_ID = os.environ["DATABASE_ID"]
     HALL_TV_TOKEN = os.environ["HALL_TV_TOKEN"]
+    
 
 except KeyError:
     logging.error("Can't find all env variables")
