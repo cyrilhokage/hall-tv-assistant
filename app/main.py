@@ -4,9 +4,11 @@ import json
 import traceback
 import logging
 import os
+import re
 
-from app.movieApi import searchProgram, getProgramData
 from app.notionApi import userChoiceHandler
+from app.middleware import handleTextMessages
+
 
 app = Flask(__name__)
 logging.basicConfig(level=logging.DEBUG)
@@ -27,8 +29,9 @@ except KeyError:
 
 
 # This is API key for facebook messenger.
-API = "https://graph.facebook.com/v13.0/me/messages?access_token=" + PAGE_ACCESS_TOKEN
-IMG_BASE_URL = "https://image.tmdb.org/t/p/w500"
+MESGENGER_API = (
+    "https://graph.facebook.com/v13.0/me/messages?access_token=" + PAGE_ACCESS_TOKEN
+)
 
 if __name__ == "__main__":
     app.run()
@@ -98,96 +101,19 @@ def receivedMessage(event):
 
     # could receive text or attachment but not both
     if "text" in event["message"]:
-        messageText = event["message"]["text"]
-
-        # TV show search
-        if messageText.lower().startswith("tv -"):
-            text = messageText.split(" - ")
-            programType = text[0]
-            query = text[1]
-
-            results = searchProgram(programType, query)
-            requestBody = buildTvSearchBody(senderId, results)
-            print(requestBody)
-
-            response = requests.post(API, json=requestBody).json()
-            print(response.status_code)
-            return response
-
-        else:  # default case
-            return sendTextMessage(senderId, "Echo: " + messageText)
+        return handleTextMessages(event["message"]["text"], senderId, MESGENGER_API)
 
     elif "attachments" in event["message"]:
         message_attachments = event["message"]["attachments"]
         return sendTextMessage(senderId, "Message with attachment received")
 
 
-def buildTvSearchBody(senderId, results):
-
-    elements = [
-        dict(
-            {
-                "title": result["name"],
-                "image_url": IMG_BASE_URL + result["poster_path"],
-                "subtitle": result["original_name"],
-                "default_action": {
-                    "type": "web_url",
-                    "url": "https://www.originalcoastclothing.com/",
-                    "webview_height_ratio": "tall",
-                },
-                "buttons": [
-                    {
-                        "type": "postback",
-                        "title": "A voir",
-                        "payload": "1 - {programId}".format(programId=result["id"]),
-                    },
-                    {
-                        "type": "postback",
-                        "title": "En cours",
-                        "payload": "2 - {programId}".format(programId=result["id"]),
-                    },
-                    {
-                        "type": "postback",
-                        "title": "Terminé",
-                        "payload": "3 - {programId}".format(programId=result["id"]),
-                    },
-                ],
-            }
-        )
-        for result in results
-        if result["poster_path"] != None
-    ]
-
-    requestBody = {
-        "recipient": {"id": senderId},
-        "message": {
-            "attachment": {
-                "type": "template",
-                "payload": {
-                    "template_type": "generic",
-                    "elements": elements,
-                },
-            }
-        },
-    }
-
-    return requestBody
-
-
 def callSendApi(messageData):
-    """
-    params = {
-        "access_token": PAGE_ACCESS_TOKEN
-    }
-    headers = {
-        "Content-Type": "application/json"
-    }
-    """
     recipientId = messageData["recipient"]["id"]
 
     try:
         # req = requests.post("https://graph.facebook.com/v2.6/me/messages", params=params, headers=headers, data=messageData)
-        response = requests.post(API, json=messageData).json()
+        response = requests.post(MESGENGER_API, json=messageData).json()
         response.raise_for_status()
         logging.info(
             f"Message successfully sent to {recipientId}. status code : {response.status_code}"
@@ -217,8 +143,8 @@ def receivedPostback(event):
     sender_id = event["sender"]["id"]
     recipient_id = event["recipient"]["id"]
     payload = event["postback"]["payload"]
-    programId = payload.split(" - ")[1]
-    programStatus = ""
+    programType = payload.split(" - ")[1]
+    programId = payload.split(" - ")[2]
 
     logging.info(
         "received postback from {recipient} with payload {payload}".format(
@@ -230,10 +156,12 @@ def receivedPostback(event):
         programStatus = "A voir"
     elif payload.startswith("2 -"):
         programStatus = "En cours"
-    elif payload.startswith("3 -"):
+    else:
         programStatus = "Terminé"
 
-    if userChoiceHandler(programStatus, DATABASE_ID, HALL_TV_TOKEN, programId, "tv"):
+    if userChoiceHandler(
+        programStatus, DATABASE_ID, HALL_TV_TOKEN, programId, programType
+    ):
         return sendTextMessage(
             sender_id,
             f" 5 sur 5 ! Tu peux retrouver ton programe {programStatus} dans Notion !",
