@@ -60,6 +60,7 @@ def getProgramData(tmdb_id, media_type):
             logging.info("could not get program data")
             return None, False  # Raise an error or write log here
 
+        list_providers, _ = getProviders(tmdb_id, media_type)
         logging.info("program info got successfully")
         return (
             dict(
@@ -71,6 +72,7 @@ def getProgramData(tmdb_id, media_type):
                 poster_path=data["poster_path"],
                 tags=", ".join(list_genres),
                 release_date=release_date,
+                providers=", ".join(list_providers)
             ),
             True,
         )
@@ -78,3 +80,49 @@ def getProgramData(tmdb_id, media_type):
     except requests.exceptions.HTTPError as errh:
         logging.error("Http Error:", errh)
         return None, errh
+
+
+def getProviders(tmdb_id, media_type):
+
+    logging.info("Getting program providers info")
+    list_providers = []
+
+    params = dict(api_key=MOVIES_API_KEY, language="fr-FR")
+    req = requests.get(
+        f"https://api.themoviedb.org/3/{media_type}/{tmdb_id}/watch/providers", params
+    )
+
+    if req.status_code != 200:
+        raise KeyError
+
+    try:
+        data_providers = json.loads(req.content)
+
+        for key in data_providers["results"]["FR"].keys():
+            if key == "link":
+                link = data_providers["results"]["FR"][key]
+
+            else:
+                for req_provider in data_providers["results"]["FR"][key]:
+
+                    provider = dict(
+                        provider_name=req_provider["provider_name"],
+                        provider_tmdb_id=req_provider["provider_id"],
+                        logo_url=req_provider["logo_path"],
+                    )
+
+                    # new_provider, created = Provider.objects.get_or_create(
+                    #     provider_tmdb_id=req_provider["provider_id"], defaults=provider
+                    # )
+
+                    list_providers.append(provider["provider_name"])
+
+    except KeyError:
+        return False, None
+        # return False  # Write specific message here in logs
+
+    except json.JSONDecodeError as jsonErr:
+        return False, None
+        # return False # Write specific message here in logs
+
+    return list_providers, link

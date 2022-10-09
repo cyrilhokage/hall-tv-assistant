@@ -151,6 +151,9 @@ def buildNotionData(tmdbData, programStatus):
         "Tags": {
             "multi_select": [{"name": genre} for genre in tmdbData["tags"].split(", ")]
         },
+        "Providers" : {
+            "multi_select": [{"name": provider} for provider in tmdbData["providers"].split(", ")]
+        },
         "Lien": {"url": tmdbData["homepage_link"]},
         "id": {
             "rich_text": [
@@ -177,7 +180,7 @@ def buildNotionData(tmdbData, programStatus):
 def addProgram(DATABASE_ID, HALL_TV_TOKEN, programId, media_type, programStatus):
 
     logging.info(f"Adding new serie {programId} in database")
-    programData, _ = getProgramData(programId, media_type="tv")
+    programData, _ = getProgramData(programId, media_type=media_type)
     imageUrl = IMG_BASE_URL + programData["poster_path"]
     notionProperties = buildNotionData(programData, programStatus)
     programData = {
