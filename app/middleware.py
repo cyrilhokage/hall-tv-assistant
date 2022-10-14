@@ -44,7 +44,7 @@ def buildSearchBody(senderId, results, programType):
                 "subtitle": result["original_name"],
                 "default_action": {
                     "type": "web_url",
-                    "url": str(result["homepage_link"]),
+                    "url": "https://www.google.com/",
                     "webview_height_ratio": "tall",
                 },
                 "buttons": [
