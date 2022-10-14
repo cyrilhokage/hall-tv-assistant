@@ -151,7 +151,7 @@ def buildNotionData(tmdbData, programStatus):
         "Tags": {
             "multi_select": [{"name": genre} for genre in tmdbData["tags"].split(", ")]
         },
-        "Providers" : {
+        "providers" : {
             "multi_select": [{"name": provider} for provider in tmdbData["providers"].split(", ")]
         },
         "Lien": {"url": tmdbData["homepage_link"]},
