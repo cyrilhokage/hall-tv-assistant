@@ -132,15 +132,22 @@ def updatePage(pageId, hall_tv_token, data):
     return None
 
 
-def buildNotionData(tmdbData, programStatus):
+def buildNotionData(tmdbData, programStatus, media_type):
     logging.info("Building data for {tmdb_id}".format(tmdb_id=tmdbData["tmdb_id"]))
+
+    mType = media_type
     for key in tmdbData.keys():
         if(tmdbData[key] == ''):
             tmdbData[key] = "#NA"
+
+    if(media_type == "tv"):
+        mType = "Série TV"
+    elif(media_type == "movie"):
+        mType = "Film"
             
     properties = {
         "Note sur 5": {"select": {"name": "⭐️⭐️⭐️⭐️⭐️"}},
-        "Type": {"select": {"name": "Série TV"}},
+        "Type": {"select": {"name": mType}},
         "Éditeur": {"multi_select": [{"name": tmdbData["source"]}]},
         "Statut": {"select": {"name": programStatus}},
         "Nom": {
@@ -187,7 +194,7 @@ def addProgram(DATABASE_ID, HALL_TV_TOKEN, programId, media_type, programStatus)
     programData, _ = getProgramData(programId, media_type=media_type)
     imageUrl = IMG_BASE_URL + programData["poster_path"]
     logging.info("Program data : %s", programData)
-    notionProperties = buildNotionData(programData, programStatus)
+    notionProperties = buildNotionData(programData, programStatus, media_type)
     programData = {
         "properties": notionProperties
         # "icon" : "👅"
