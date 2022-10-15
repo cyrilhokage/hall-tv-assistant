@@ -182,7 +182,7 @@ def addProgram(DATABASE_ID, HALL_TV_TOKEN, programId, media_type, programStatus)
     logging.info(f"Adding new serie {programId} in database")
     programData, _ = getProgramData(programId, media_type=media_type)
     imageUrl = IMG_BASE_URL + programData["poster_path"]
-    logging.info("Program data : ", programData)
+    logging.info("Program data : %s", programData)
     notionProperties = buildNotionData(programData, programStatus)
     programData = {
         "properties": notionProperties
