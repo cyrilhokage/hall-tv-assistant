@@ -24,6 +24,12 @@ def searchProgram(programType, query):
         req.raise_for_status()
         data = json.loads(req.content)
         logging.info("search OK")
+
+        if programType == "movie":
+            for movie in data["results"][:9]:
+                data["name"] = data.pop("title")
+                data["first_air_date"] = data.pop("release_date")
+                data["original_name"] = data.pop("original_title")
         return data["results"][:9]
 
     except requests.exceptions.HTTPError as errh:
@@ -61,31 +67,8 @@ def getProgramData(tmdb_id, media_type):
             return None, False  # Raise an error or write log here
 
         list_providers, _ = getProviders(tmdb_id, media_type)
-        logging.info("Point 1")
-        logging.info(dict(
-                tmdb_id=tmdb_id,
-                name=name,
-                homepage_link=data["homepage"],
-                source=", ".join(list_networks)[0:200],
-                synopsis=data["overview"],
-                poster_path=data["poster_path"],
-                tags=", ".join(list_genres),
-                release_date=release_date,
-                providers=", ".join(list_providers)
-            ))
+
         logging.info("program info got successfully")
-        logging.info("Point 2")
-        logging.info(dict(
-                tmdb_id=tmdb_id,
-                name=name,
-                homepage_link=data["homepage"],
-                source=", ".join(list_networks)[0:200],
-                synopsis=data["overview"],
-                poster_path=data["poster_path"],
-                tags=", ".join(list_genres),
-                release_date=release_date,
-                providers=", ".join(list_providers)
-            ))
         return (
             dict(
                 tmdb_id=tmdb_id,
@@ -141,12 +124,14 @@ def getProviders(tmdb_id, media_type):
 
                     list_providers.append(provider["provider_name"])
 
-    except KeyError:
-        return False, None
+    except KeyError as ke:
+        logging.error("Key Not Found in provider's results:", ke)
+        return [], None
         # return False  # Write specific message here in logs
 
     except json.JSONDecodeError as jsonErr:
-        return False, None
+        logging.error("jSon decode error in provider's results:", jsonErr)
+        return [], None
         # return False # Write specific message here in logs
 
     return list_providers, link
