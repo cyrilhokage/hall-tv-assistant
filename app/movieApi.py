@@ -75,12 +75,12 @@ def getProgramData(tmdb_id, media_type):
                 tmdb_id=tmdb_id,
                 name=name,
                 homepage_link=data["homepage"],
-                source=", ".join(list_networks)[0:200],
+                source=", ".join(list_networks)[0:5],
                 synopsis=data["overview"],
                 poster_path=data["poster_path"],
-                tags=", ".join(list_genres),
+                tags=", ".join(list_genres[:4]),
                 release_date=release_date,
-                providers=", ".join(list_providers)
+                providers=", ".join(list_providers[:4])
             ),
             True,
         )
