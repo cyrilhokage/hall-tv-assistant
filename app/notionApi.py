@@ -134,6 +134,10 @@ def updatePage(pageId, hall_tv_token, data):
 
 def buildNotionData(tmdbData, programStatus):
     logging.info("Building data for {tmdb_id}".format(tmdb_id=tmdbData["tmdb_id"]))
+    for key in tmdbData.keys():
+        if(tmdbData[key] == ''):
+            tmdbData[key] = "#NA"
+            
     properties = {
         "Note sur 5": {"select": {"name": "⭐️⭐️⭐️⭐️⭐️"}},
         "Type": {"select": {"name": "Série TV"}},
