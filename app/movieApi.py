@@ -61,7 +61,20 @@ def getProgramData(tmdb_id, media_type):
             return None, False  # Raise an error or write log here
 
         list_providers, _ = getProviders(tmdb_id, media_type)
+        logging.info("Point 1")
+        logging.info(dict(
+                tmdb_id=tmdb_id,
+                name=name,
+                homepage_link=data["homepage"],
+                source=", ".join(list_networks)[0:200],
+                synopsis=data["overview"],
+                poster_path=data["poster_path"],
+                tags=", ".join(list_genres),
+                release_date=release_date,
+                providers=", ".join(list_providers)
+            ))
         logging.info("program info got successfully")
+        logging.info("Point 2")
         logging.info(dict(
                 tmdb_id=tmdb_id,
                 name=name,
