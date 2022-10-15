@@ -26,10 +26,11 @@ def searchProgram(programType, query):
         logging.info("search OK")
 
         if programType == "movie":
-            for movie in data["results"][:9]:
-                data["name"] = data.pop("title")
-                data["first_air_date"] = data.pop("release_date")
-                data["original_name"] = data.pop("original_title")
+            for result in data["results"][:9]:
+                result["name"] = result.pop("title")
+                result["first_air_date"] = result.pop("release_date")
+                result["original_name"] = result.pop("original_title")
+                
         return data["results"][:9]
 
     except requests.exceptions.HTTPError as errh:
